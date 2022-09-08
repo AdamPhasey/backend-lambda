@@ -1,0 +1,37 @@
+service: tech-test
+
+frameworkVersion: '3'
+
+custom:
+  bucket: mytechtest
+
+provider:
+  name: aws
+  runtime: nodejs16.x
+  stage: dev
+  region: eu-west-2
+  iam:
+    role:
+      statements:
+        - Effect: Allow
+          Action:
+            - s3:PutObject
+            - s3:PutObjectAcl
+          Resource: "arn:aws:s3:::${self:custom.bucket}/*"
+  
+
+functions:
+  picture:
+    handler: handler.picture
+    events:
+     - http:
+        path: picture/create
+        method: POST
+        integration: lambda-proxy
+        cors: true
+
+
+    environment:
+      BUCKET: ${self:custom.bucket}
+
+
